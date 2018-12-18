@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-	port: parseInt(process.env.PORT, 10) || 8080,
+	port: parseInt(process.env.PORT, 10) || 3002,
 	url: 'mongodb://localhost:27017/server819',
 	session: {
 		name: '819SID',
