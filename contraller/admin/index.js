@@ -4,12 +4,13 @@ import BaseComponent from '../BaseComponent/index';
 import Module from '../../models/admin/modlue';
 import Roles from '../../models/admin/roles';
 import moment from 'moment';
-import { throws } from 'assert';
+import nodeExcel from 'excel-export';
 class AdminInfo extends BaseComponent {
     constructor() {
         super();
         this.userCreate = this.userCreate.bind(this);
         this.roleCreate = this.roleCreate.bind(this);
+        this.insertManyUser = this.insertManyUser.bind(this);
     };
 
     async adminList (req, res, next) {
@@ -121,22 +122,27 @@ class AdminInfo extends BaseComponent {
         try {
             const { limit = 10, page = 1 } = req.query;
             const totalCount = await Users.find().countDocuments();
-            const skip = limit * (page - 1);
             // const usersList = await Users.find().skip(skip).limit(Number(limit));
 
             //关联表查询
             const usersList = await Users.aggregate(
-                [{
-                    $lookup:
+                [
+                    { $skip: limit * (page - 1) },
+                    { $limit: Number(limit) },
                     {
-                        from: "roles",
-                        localField: "rid",
-                        foreignField: "rid",
-                        as: "role"
+                        $lookup:
+                        {
+                            from: "roles",
+                            localField: "rid",
+                            foreignField: "rid",
+                            as: "roles"
+                        },
                     },
-
-                }, { $project: { _id: 0 } }, { $skip: skip }, { $limit: Number(limit) }]);
-                // { $addFields: { roleName: { $substr: ["$role", 0, 3] } } },
+                    { $unwind: '$roles' },
+                    { $addFields: { roleName: '$roles.name' } },
+                    // { $project: { _id: 0, roles: { _id: 0, permissions: 0 } } },
+                    { $project: { _id: 0, roles: 0 } }
+                ]);
 
             res.send({
                 code: 1000,
@@ -152,6 +158,102 @@ class AdminInfo extends BaseComponent {
                 time: moment().format('YYYY-MM-DD HH:mm')
             })
         }
+    }
+
+    async deleteUser (req, res, next) {
+        try {
+            const uid = req.params.uid;
+            await Users.remove({ uid });
+            res.send({
+                code: 1000,
+                msg: 'ok',
+                time: moment().format('YYYY-MM-DD HH:mm')
+            })
+        } catch (err) {
+            res.send({
+                code: 1006,
+                type: '删除失败',
+                msg: err.message,
+                time: moment().format('YYYY-MM-DD HH:mm')
+            })
+        }
+    }
+
+    async resetPassword (req, res, next) {
+        try {
+            const uid = req.params.uid;
+            await Users.findOneAndUpdate({ uid }, { $set: { password: '000000 ' } });
+            res.send({
+                code: 1000,
+                msg: 'ok',
+                time: moment().format('YYYY-MM-DD HH:mm')
+            })
+        } catch (err) {
+            res.send({
+                code: 1006,
+                type: '重置密码失败',
+                msg: err.message,
+                time: moment().format('YYYY-MM-DD HH:mm')
+            })
+        }
+    }
+
+    async insertManyUser (req, res, next) {
+        try {
+            const list = [
+                { nickname: '哈哈哈哈', username: 'admin', phone: 15858112483, password: 123456, rid: 1 },
+                { nickname: '5566', username: 'admin123', phone: 15858112483, password: 123456, rid: 1 },
+                { nickname: '4455', username: 'admin456', phone: 15858112483, password: 123456, rid: 1 },
+                { nickname: '2233', username: 'admin789', phone: 15858112483, password: 123456, rid: 1 },
+                { nickname: '1122', username: 'admin112', phone: 15858112483, password: 123456, rid: 1 }
+            ];
+            let insertList = [];
+            for (let item in list) {
+                let uid = await this.getUid('admin');
+                list[item].uid = uid.value;
+                list[item].lastLoginTime = moment().format('YYYY-MM-DD HH:mm');
+                insertList.push(list[item]);
+            }
+
+            const resList = await Users.insertMany(insertList);
+            res.send({
+                data: resList,
+                code: 1000,
+                msg: 'ok',
+                time: moment().format('YYYY-MM-DD HH:mm')
+            })
+        } catch (err) {
+            res.send({
+                code: 1006,
+                type: '批量插入失败',
+                msg: err.message,
+                time: moment().format('YYYY-MM-DD HH:mm')
+            })
+        }
+
+    }
+
+    downLoadExcel (req, res, next) {
+        var conf = {};
+        conf.stylesXmlFile = "模板.xml";
+        conf.name = "mysheet";
+        conf.cols = [{
+            caption: 'string',
+            type: 'string'
+        }, {
+            caption: 'bool',
+            type: 'bool'
+        }, {
+            caption: 'number',
+            type: 'number'
+        }];
+        // conf.rows = [
+        //     ['pi', new Date(Date.UTC(2013, 4, 1)), true, 3.14],
+        // ];
+        var result = nodeExcel.execute(conf);
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats');
+        res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
+        res.send(result, 'binary');
     }
 }
 

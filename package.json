@@ -19,6 +19,7 @@
     "cross-env": "^5.2.0",
     "debug": "~2.6.9",
     "ejs": "~2.5.7",
+    "excel-export": "^0.5.1",
     "express": "~4.16.0",
     "express-session": "^1.15.6",
     "file-stream-rotator": "^0.4.1",

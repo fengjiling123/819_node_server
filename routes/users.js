@@ -16,4 +16,12 @@ router.get('/roleList', Admin.getRolesList);
 
 router.get('/users', Admin.getUsersList);
 
+router.delete('/user/del/:uid', Admin.deleteUser);
+
+router.get('/resetPassword/:uid', Admin.resetPassword);
+
+router.get('/users/create', Admin.insertManyUser);
+
+router.get('/download', Admin.downLoadExcel)
+
 export default router;
