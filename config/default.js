@@ -3,6 +3,8 @@
 module.exports = {
 	port: parseInt(process.env.PORT, 10) || 3002,
 	url: 'mongodb://localhost:27017/server819',
+	serviceAddress: 'http://localhost:3002',
+	uploadImgPath: '/images/upload/',
 	session: {
 		name: '819SID',
 		secret: '819SID',

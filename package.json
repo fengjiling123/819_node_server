@@ -27,7 +27,8 @@
     "moment": "^2.23.0",
     "mongodb": "^3.1.10",
     "mongoose": "^5.3.16",
-    "morgan": "~1.9.0"
+    "morgan": "~1.9.0",
+    "multer": "^1.4.1"
   },
   "devDependencies": {
     "babel-plugin-transform-async-to-generator": "^6.24.1",

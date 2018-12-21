@@ -233,27 +233,28 @@ class AdminInfo extends BaseComponent {
 
     }
 
+    //报错
     downLoadExcel (req, res, next) {
-        var conf = {};
-        conf.stylesXmlFile = "模板.xml";
-        conf.name = "mysheet";
-        conf.cols = [{
-            caption: 'string',
-            type: 'string'
-        }, {
-            caption: 'bool',
-            type: 'bool'
-        }, {
-            caption: 'number',
-            type: 'number'
-        }];
-        // conf.rows = [
-        //     ['pi', new Date(Date.UTC(2013, 4, 1)), true, 3.14],
-        // ];
-        var result = nodeExcel.execute(conf);
-        res.setHeader('Content-Type', 'application/vnd.openxmlformats');
-        res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
-        res.send(result, 'binary');
+        // var conf = {};
+        // conf.stylesXmlFile = "模板.xml";
+        // conf.name = "mysheet";
+        // conf.cols = [{
+        //     caption: 'string',
+        //     type: 'string'
+        // }, {
+        //     caption: 'bool',
+        //     type: 'bool'
+        // }, {
+        //     caption: 'number',
+        //     type: 'number'
+        // }];
+        // // conf.rows = [
+        // //     ['pi', new Date(Date.UTC(2013, 4, 1)), true, 3.14],
+        // // ];
+        // var result = nodeExcel.execute(conf);
+        // res.setHeader('Content-Type', 'application/vnd.openxmlformats');
+        // res.setHeader("Content-Disposition", "attachment; filename=" + "Report.xlsx");
+        // res.send(result, 'binary');
     }
 }
 
