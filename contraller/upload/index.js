@@ -6,7 +6,7 @@ class Upload {
         try {
             console.log(req.file)
             const newImg = { url: config.uploadImgPath + req.file.filename }
-            const img = await UploadImgModel.create(newImg);
+            await UploadImgModel.create(newImg);
             res.send({
                 code: 1000,
                 meg: 'ok',

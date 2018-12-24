@@ -14,6 +14,7 @@ class AdminInfo extends BaseComponent {
     };
 
     async adminList (req, res, next) {
+       
         try {
             const usersList = await Users.find().skip(0).limit(2);
             const count = await Users.find().countDocuments();
@@ -81,6 +82,7 @@ class AdminInfo extends BaseComponent {
     }
 
     async getRolesList (req, res, next) {
+        // console.log(req.session,9090) //获取登陆用户
         try {
             const rolesList = await Roles.find({}, { name: 1, rid: 1, _id: 0 });
             res.send({
@@ -99,6 +101,7 @@ class AdminInfo extends BaseComponent {
     }
 
     async moduleList (req, res, next) {
+        // req.session.username='123123' //设置用户身份
         try {
             const authsList = await Module.find();
             res.send({

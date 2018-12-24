@@ -1,5 +1,4 @@
 import express from 'express';
-import FileStreamRotator from 'file-stream-rotator';
 import fs from 'fs';
 import db from './mongodb/db';
 import path from 'path';
@@ -17,7 +16,7 @@ var app = express();
 //设置跨域
 app.all('*', (req, res, next) => {
   const { origin, Origin, referer, Referer } = req.headers;
-  const allowOrigin = origin || Origin || referer || Referer || '*';
+  const allowOrigin = origin || Origin || referer || Referer || 'http://localhost:3001'; //确定的访问者+前端{.withCredentials ：true}发送cookie  做跨域时的seesion存取
   res.header("Access-Control-Allow-Origin", allowOrigin);
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
   res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
@@ -47,7 +46,7 @@ if (process.env.NODE_ENV === 'development') {
 
   //打印日志到log文件夹下
   app.use(morgan(function (tokens, req, res) {
-    if (tokens.url(req, res) !== '/favicon.ico') {
+    if (tokens.url(req, res) !== '/favicon.ico') { 
       return [
         tokens.method(req, res),
         tokens.url(req, res),
@@ -59,18 +58,20 @@ if (process.env.NODE_ENV === 'development') {
   }, { stream: accessLogStream }));
 };
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
+app.use(express.json()); // parsing application/json
+app.use(express.urlencoded({ extended: false })); //parsing application/x-www-form-urlencoded
 
 const MongoStore = connectMongo(session);
 app.use(cookieParser());
+
 app.use(session({
   name: config.session.name,
-  secret: config.session.secret,
-  resave: true,
-  saveUninitialized: false,
+  secret: config.session.secret, // 对session id 相关的cookie 进行签名
+  resave: false, // 是否每次都重新保存会话，建议false
+  saveUninitialized: false, // 是否保存未初始化的会话
   cookie: config.session.cookie,
-  store: new MongoStore({
+  store: new MongoStore({  // session 保存到 MongoDB 数据库
     url: config.url
   })
 }));
