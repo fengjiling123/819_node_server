@@ -9,6 +9,9 @@ import morgan from 'morgan';
 import chalk from 'chalk';
 import router from './routes/index';
 
+import graphqlHTTP from 'express-graphql';
+import Schema from './contraller/graphql';
+
 var config = require('config-lite')(__dirname);
 
 var app = express();
@@ -16,7 +19,7 @@ var app = express();
 //设置跨域
 app.all('*', (req, res, next) => {
   const { origin, Origin, referer, Referer } = req.headers;
-  const allowOrigin = origin || Origin || referer || Referer || 'http://localhost:3001'; //确定的访问者+前端{.withCredentials ：true}发送cookie  做跨域时的seesion存取
+  const allowOrigin = origin || Origin || referer || Referer || 'http://localhost:3001'; //确定的访问者+前端{.withCredentials ：true}发送cookies  做跨域时的seesion存取
   res.header("Access-Control-Allow-Origin", allowOrigin);
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
   res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
@@ -46,7 +49,7 @@ if (process.env.NODE_ENV === 'development') {
 
   //打印日志到log文件夹下
   app.use(morgan(function (tokens, req, res) {
-    if (tokens.url(req, res) !== '/favicon.ico') { 
+    if (tokens.url(req, res) !== '/favicon.ico') {
       return [
         tokens.method(req, res),
         tokens.url(req, res),
@@ -78,6 +81,14 @@ app.use(session({
 
 app.use(express.static(path.join(__dirname, 'public')));
 router(app);
+
+//启动garphql服务器
+app.use('/graphql', graphqlHTTP({
+  schema: Schema,
+  graphiql: true //是否可视化
+}));
+
+
 app.listen(config.port, () => {
   console.log(
     chalk.green(`成功监听端口：${config.port}`)

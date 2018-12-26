@@ -5,5 +5,5 @@ import upload from './upload';
 export default app => {
   app.use('/account', admin);
   app.use('/news', information);
-  app.use('/upload', upload);
+  app.use('/', upload);
 }
